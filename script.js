@@ -17,7 +17,7 @@ const healthyPet = document.getElementById('healthy-btn');
 const buttonCaculateBMI = document.getElementById('caculate-bmi');
 const petList = [];
 const healthyPetList = [];
-const listPetBMI = [];
+let listPetBMI = [];
 let checkHealthyPet = false;
 let checkResultBMI = false;
 let checkUpdateInfo = false;
@@ -164,7 +164,8 @@ function createRowInTable(petList) {
 
         const cellBMI = document.createElement('td');
         // cellBMI.textContent = resultBMI(typeValue, weightValue, lengthValue);
-        cellBMI.textContent = !checkResultBMI ? '?' : listPetBMI[index];
+        cellBMI.textContent = '?';
+        cellBMI.textContent = !checkResultBMI ? '?' : (listPetBMI[index]) ? listPetBMI[index] : '?';
         row.appendChild(cellBMI);
 
         const cellDate = document.createElement('td');
@@ -325,16 +326,17 @@ function resultBMI(type, weight, length) {
 
 buttonCaculateBMI.addEventListener('click', function () {
     checkResultBMI = true;
+    listPetBMI = [];
     petList.forEach(item => {
         let bmiItem = resultBMI(item.type, item.weight, item.length_pet);
         listPetBMI.push(bmiItem);
     })
+    console.log(listPetBMI);
     if (checkHealthyPet) {
         showHealthyPet();
     } else {
         showAllList();
     }
-
 })
 function setValue(data) {
     idInput.value = data.id;
@@ -360,6 +362,7 @@ const arrowEditFunction = (pet) => {
         console.log("data update", pet);
         if (checkDataValid(pet)) {
             petList[index] = pet;
+            listPetBMI[index] = resultBMI(pet.type, pet.weight, pet.length_pet);
         }
     }
 }
@@ -377,6 +380,8 @@ function createButtonEdit(cellEdit, petId) {
         const pet = petList.find(item => item.id === petId);
         arrowEditFunction(pet);
     });
+
+    //Update bml pet 
 }
 
 function updateInfoOfPet(dataUpdate) {
