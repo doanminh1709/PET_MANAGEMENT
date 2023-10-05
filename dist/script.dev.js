@@ -192,14 +192,11 @@ function showHealthyPet() {
   resultBMI();
   petList.forEach(function (item) {
     if (item.vaccinated && item.dewormed && item.sterilized) {
-      var idPetList = item.id;
-      var indexPetId = healthyPetList.findIndex(function (item) {
-        return item.id === idPetList;
-      });
-
-      if (indexPetId === -1) {
-        healthyPetList.push(item);
-      }
+      // let idPetList = item.id;
+      // let indexPetId = healthyPetList.findIndex(item => item.id === idPetList);
+      // if (indexPetId === -1) {
+      healthyPetList.push(item);
+      console.log(healthyPetList); // }
     }
   });
   createRowInTable(healthyPetList);

@@ -14,9 +14,12 @@ const check_sterilized = document.getElementById('input-sterilized');
 const tableBodyEl = document.getElementById('tbody');
 const submit = document.getElementById('submit-btn');
 const healthyPet = document.getElementById('healthy-btn');
+const buttonCaculateBMI = document.getElementById('caculate-bmi');
 const petList = [];
 const healthyPetList = [];
-const bmiPetList = [];
+const listPetBMI = [];
+let checkHealthyPet = false;
+let checkResultBMI = false;
 let checkUpdateInfo = false;
 
 const init = () => ({
@@ -81,17 +84,6 @@ function addPetToList() {
     }
 }
 
-
-function resultBMI(type, weight, length) {
-    let bmiType;
-    if (type === 'Cat') {
-        bmiType = ((weight * 703) / length ** 2);
-    }
-    if (type === 'Dog') {
-        bmiType = ((weight * 886) / length ** 2);
-    }
-    return bmiType.toFixed(2);
-}
 function setUpIconCheckIn(cell, value) {
 
     const checked = 'bi bi-check-circle-fill';
@@ -99,7 +91,6 @@ function setUpIconCheckIn(cell, value) {
     const icon = document.createElement('i');
     icon.className = Boolean(value) ? checked : unchecked;
     cell.appendChild(icon);
-
 }
 
 function applyColor(selectedColor, cellColor) {
@@ -110,11 +101,12 @@ function applyColor(selectedColor, cellColor) {
     cellColor.appendChild(colorIcon);
 }
 
-
+//The way 1 
 function createRowInTable(petList) {
 
     tableBodyEl.innerHTML = '';
     for (let index = 0; index < petList.length; index++) {
+        //Create row
         const row = document.createElement('tr');
 
         const cellId = document.createElement('th');
@@ -171,7 +163,8 @@ function createRowInTable(petList) {
         setUpIconCheckIn(cellSterilized, sterillizedValue);
 
         const cellBMI = document.createElement('td');
-        cellBMI.textContent = resultBMI(typeValue, weightValue, lengthValue);;
+        // cellBMI.textContent = resultBMI(typeValue, weightValue, lengthValue);
+        cellBMI.textContent = !checkResultBMI ? '?' : listPetBMI[index];
         row.appendChild(cellBMI);
 
         const cellDate = document.createElement('td');
@@ -186,9 +179,104 @@ function createRowInTable(petList) {
         createButtonDelete(cellDelete, idValue);
         row.appendChild(cellDelete);
 
+        //Add row to tbody 
         tableBodyEl.appendChild(row);
     }
 }
+
+//The way 2 
+const createRowInTable2 = (petList) => {
+    tableBodyEl.innerHTML = "";
+    let html = "";
+
+    for (let index = 0; index < petList.length; index++) {
+        // html += `<tr>
+        //        <td>${petList[index].id}</td>
+        //        <td>${petList[index].name}</td>
+        //        <td>${petList[index].age}</td>
+        //        <td>${petList[index].type}</td>
+        //        <td>${petList[index].weight}</td>
+        //        <td>${petList[index].length_pet}</td>
+        //        <td>${petList[index].breed}</td>
+        //        <td><button onclick="deletePet(this)" class = "btn btn-danger btn-delete">Delete</button></td>
+        //     </tr>`
+
+        html += `<tr>
+        <td>${petList[index].id}</td>
+        <td>${petList[index].name}</td>
+        <td>${petList[index].age}</td>
+        <td>${petList[index].type}</td>
+        <td>${petList[index].weight}</td>
+        <td>${petList[index].length_pet}</td>
+        <td>${petList[index].breed}</td>
+        <td><button class = "btn-delete">Delete</button></td>
+     </tr>`
+
+    }
+    tableBodyEl.innerHTML = html;
+}
+/*
+//How to way another delete 
+const deletePet = function (pet) {
+    
+    // parentElement : Cho biết phần tử cha trực tiếp của phần tử DOM 
+    // , trả về phần tử DOM cha gần nhất của phần tử hiện tại trong cây DOM 
+    
+    // //Giải thích cú pháp 
+    // let id = pet.parentElement.parentElement.children[0].innerHTML;
+   
+    // pet : Biến đại diện cho thú cưng cần xóa 
+    // pet.parentElement : lấy ra thẻ td chứa nút delete 
+    // pet.parentElement.parentElement : Lấy ra hàng <tr> chứa thẻ <td>
+    // children[0] : lấy giá trị trong cột đầu tiên là cột chứa id  
+    
+
+    let id = pet.parentElement.parentElement.children[0].innerHTML;
+    console.log(pet.parentElement.parentElement.children[0].innerHTML);
+    console.log(pet.parentElement.parentElement.children[0].textContent);
+
+    for (let i = 0; i < petList.length; i++) {
+        if (petList[i].id === id) {
+            petList.splice(i, 1);
+            break;
+        }
+    }
+    showAllList();
+}
+//Another way 
+// const deleteEls = document.querySelectorAll("button");
+// for (let i = 0; i < petList.length; i++) {
+//     deleteEls[i].addEventListener('click', function () {
+//         const pet_id = deleteEls[i].parentElement.parentElement.children[0].innerHTML;
+//         deletePet2(pet_id);
+//     });
+// }
+// showAllList();
+*/
+//get id by target 
+tableBodyEl.addEventListener('click', function (event) {
+    /*
+        Giải thích cú pháp : Biến event đại diện cho sự kiện click 
+        event.target.className : Lấy ra phần tử mục tiêu của sự kiện click
+    */
+    if (event.target.className !== "btn-delete") return;
+    const isDelete = confirm("Bạn có chắc chắn muốn xóa hay không ?");
+    if (isDelete) {
+        const id = event.target.parentElement.parentElement.children[0].innerHTML;
+        deletePet2(id);
+    }
+})
+//Delete function 
+function deletePet2(id) {
+    for (let i = 0; i < petList.length; i++) {
+        if (petList[i].id === id) {
+            petList.splice(i, 1);
+            break;
+        }
+    }
+    showAllList();
+}
+
 
 function showAllList() {
     createRowInTable(petList);
@@ -202,6 +290,7 @@ function showHealthyPet() {
             let indexPetId = healthyPetList.findIndex(item => item.id === idPetList);
             if (indexPetId === -1) {
                 healthyPetList.push(item);
+                console.log(healthyPetList);
             }
         }
     })
@@ -214,13 +303,39 @@ healthyPet.addEventListener('click', function () {
         healthyPet.textContent = 'Show All Pet';
         healthyPet.classList.add('showAll');
         showHealthyPet();
+        checkHealthyPet = false;
     } else {
         healthyPet.textContent = 'Show Healthy Pet';
         healthyPet.classList.remove('showAll');
         showAllList();
+        checkHealthyPet = true;
     }
 });
+function resultBMI(type, weight, length) {
+    let bmiType;
+    if (type === 'Cat') {
+        bmiType = ((weight * 703) / length ** 2);
+    }
+    if (type === 'Dog') {
+        bmiType = ((weight * 886) / length ** 2);
+    }
+    //? : Có giá trị thì mới nhảy vào 
+    return bmiType?.toFixed(2);
+}
 
+buttonCaculateBMI.addEventListener('click', function () {
+    checkResultBMI = true;
+    petList.forEach(item => {
+        let bmiItem = resultBMI(item.type, item.weight, item.length_pet);
+        listPetBMI.push(bmiItem);
+    })
+    if (checkHealthyPet) {
+        showHealthyPet();
+    } else {
+        showAllList();
+    }
+
+})
 function setValue(data) {
     idInput.value = data.id;
     nameInput.value = data.name;
@@ -265,7 +380,6 @@ function createButtonEdit(cellEdit, petId) {
 }
 
 function updateInfoOfPet(dataUpdate) {
-    console.log(dataUpdate);
     arrowEditFunction(dataUpdate);
     resetInput();
     idInput.removeAttribute("readonly");
